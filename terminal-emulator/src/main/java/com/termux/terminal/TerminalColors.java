@@ -14,8 +14,11 @@ public final class TerminalColors {
      */
     public final int[] mCurrentColors = new int[TextStyle.NUM_INDEXED_COLORS];
 
+    private TerminalSessionClient mClient;
+
     /** Create a new instance with default colors from the theme. */
-    public TerminalColors() {
+    public TerminalColors(TerminalSessionClient client) {
+        mClient = client;
         reset();
     }
 
@@ -27,6 +30,12 @@ public final class TerminalColors {
     /** Reset all indexed colors with the default color from the color theme. */
     public void reset() {
         System.arraycopy(COLOR_SCHEME.mDefaultColors, 0, mCurrentColors, 0, TextStyle.NUM_INDEXED_COLORS);
+
+        if (!mClient.shouldEnableDarkTheme()) {
+            mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND] = 0xffffffff;
+            mCurrentColors[TextStyle.COLOR_INDEX_FOREGROUND] = 0xff000000;
+            mCurrentColors[TextStyle.COLOR_INDEX_CURSOR] = 0xff909090;
+        }
     }
 
     /**

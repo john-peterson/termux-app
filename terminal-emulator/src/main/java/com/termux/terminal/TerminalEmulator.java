@@ -259,7 +259,7 @@ public final class TerminalEmulator {
     private final byte[] mUtf8InputBuffer = new byte[4];
     private int mLastEmittedCodePoint = -1;
 
-    public final TerminalColors mColors = new TerminalColors();
+    public TerminalColors mColors;
 
     private static final String LOG_TAG = "TerminalEmulator";
 
@@ -323,6 +323,7 @@ public final class TerminalEmulator {
         mRows = rows;
         mColumns = columns;
         mTabStop = new boolean[mColumns];
+        mColors = new TerminalColors(client);
         reset();
     }
 
@@ -330,6 +331,7 @@ public final class TerminalEmulator {
         mClient = client;
         setCursorStyle();
         setCursorBlinkState(true);
+        mColors = new TerminalColors(client);
     }
 
     public TerminalBuffer getScreen() {

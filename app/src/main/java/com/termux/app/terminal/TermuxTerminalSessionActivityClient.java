@@ -27,6 +27,8 @@ import com.termux.app.TermuxService;
 import com.termux.shared.termux.settings.properties.TermuxPropertyConstants;
 import com.termux.shared.termux.terminal.io.BellHandler;
 import com.termux.shared.logger.Logger;
+import com.termux.shared.theme.ThemeUtils;
+import com.termux.shared.theme.NightMode;
 import com.termux.terminal.TerminalColors;
 import com.termux.terminal.TerminalSession;
 import com.termux.terminal.TerminalSessionClient;
@@ -261,7 +263,10 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
         return mActivity.getProperties().getTerminalCursorStyle();
     }
 
-
+    @Override
+    public boolean shouldEnableDarkTheme() {
+        return ThemeUtils.shouldEnableDarkTheme(mActivity, NightMode.getAppNightMode().getName());
+    }
 
     /** Load mBellSoundPool */
     private synchronized void loadBellSoundPool() {
