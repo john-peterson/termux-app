@@ -275,6 +275,8 @@ public abstract class TermuxSharedProperties {
                 return (String) getDefaultWorkingDirectoryInternalPropertyValueFromValue(value);
             case TermuxPropertyConstants.KEY_EXTRA_KEYS:
                 return (String) getExtraKeysInternalPropertyValueFromValue(value);
+            case TermuxPropertyConstants.KEY_EXTRA_KEYS2:
+                return (String) getExtraKeys2InternalPropertyValueFromValue(value);
             case TermuxPropertyConstants.KEY_EXTRA_KEYS_STYLE:
                 return (String) getExtraKeysStyleInternalPropertyValueFromValue(value);
             case TermuxPropertyConstants.KEY_NIGHT_MODE:
@@ -487,6 +489,9 @@ public abstract class TermuxSharedProperties {
      */
     public static String getExtraKeysInternalPropertyValueFromValue(String value) {
         return SharedProperties.getDefaultIfNullOrEmpty(value, TermuxPropertyConstants.DEFAULT_IVALUE_EXTRA_KEYS);
+    }
+    public static String getExtraKeys2InternalPropertyValueFromValue(String value) {
+        return SharedProperties.getDefaultIfNullOrEmpty(value, TermuxPropertyConstants.DEFAULT_IVALUE_EXTRA_KEYS2);
     }
 
     /**

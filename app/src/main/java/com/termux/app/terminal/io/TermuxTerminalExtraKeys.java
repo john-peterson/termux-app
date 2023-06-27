@@ -29,24 +29,25 @@ public class TermuxTerminalExtraKeys extends TerminalExtraKeys {
 
     private static final String LOG_TAG = "TermuxTerminalExtraKeys";
 
-    public TermuxTerminalExtraKeys(TermuxActivity activity, @NonNull TerminalView terminalView, TermuxTerminalViewClient termuxTerminalViewClient, TermuxTerminalSessionActivityClient termuxTerminalSessionActivityClient) {
+    public TermuxTerminalExtraKeys(TermuxActivity activity, @NonNull TerminalView terminalView, TermuxTerminalViewClient termuxTerminalViewClient, TermuxTerminalSessionActivityClient termuxTerminalSessionActivityClient,
+     int i) {
         super(terminalView);
         mActivity = activity;
         mTermuxTerminalViewClient = termuxTerminalViewClient;
         mTermuxTerminalSessionActivityClient = termuxTerminalSessionActivityClient;
-        setExtraKeys();
+        setExtraKeys(i);
     }
 
     /**
      * Set the terminal extra keys and style.
      */
-    private void setExtraKeys() {
+    private void setExtraKeys(int i) {
         mExtraKeysInfo = null;
         try {
             // The mMap stores the extra key and style string values while loading properties
             // Check {@link #getExtraKeysInternalPropertyValueFromValue(String)} and
             // {@link #getExtraKeysStyleInternalPropertyValueFromValue(String)}
-            String extrakeys = (String) mActivity.getProperties().getInternalPropertyValue(TermuxPropertyConstants.KEY_EXTRA_KEYS, true);
+            String extrakeys = (String) mActivity.getProperties().getInternalPropertyValue(i == 0 ? TermuxPropertyConstants.KEY_EXTRA_KEYS : TermuxPropertyConstants.KEY_EXTRA_KEYS2, false);
             String extraKeysStyle = (String) mActivity.getProperties().getInternalPropertyValue(TermuxPropertyConstants.KEY_EXTRA_KEYS_STYLE, true);
             ExtraKeysConstants.ExtraKeyDisplayMap extraKeyDisplayMap = ExtraKeysInfo.getCharDisplayMapForStyle(extraKeysStyle);
             if (ExtraKeysConstants.EXTRA_KEY_DISPLAY_MAPS.DEFAULT_CHAR_DISPLAY.equals(extraKeyDisplayMap) && !TermuxPropertyConstants.DEFAULT_IVALUE_EXTRA_KEYS_STYLE.equals(extraKeysStyle)) {
@@ -58,7 +59,7 @@ public class TermuxTerminalExtraKeys extends TerminalExtraKeys {
             Logger.showToast(mActivity, "Could not load and set the \"" + TermuxPropertyConstants.KEY_EXTRA_KEYS + "\" property from the properties file: " + e.toString(), true);
             Logger.logStackTraceWithMessage(LOG_TAG, "Could not load and set the \"" + TermuxPropertyConstants.KEY_EXTRA_KEYS + "\" property from the properties file: ", e);
             try {
-                mExtraKeysInfo = new ExtraKeysInfo(TermuxPropertyConstants.DEFAULT_IVALUE_EXTRA_KEYS, TermuxPropertyConstants.DEFAULT_IVALUE_EXTRA_KEYS_STYLE, ExtraKeysConstants.CONTROL_CHARS_ALIASES);
+                mExtraKeysInfo = new ExtraKeysInfo(i == 0 ? TermuxPropertyConstants.DEFAULT_IVALUE_EXTRA_KEYS : TermuxPropertyConstants.DEFAULT_IVALUE_EXTRA_KEYS2, TermuxPropertyConstants.DEFAULT_IVALUE_EXTRA_KEYS_STYLE, ExtraKeysConstants.CONTROL_CHARS_ALIASES);
             } catch (JSONException e2) {
                 Logger.showToast(mActivity, "Can't create default extra keys", true);
                 Logger.logStackTraceWithMessage(LOG_TAG, "Could create default extra keys: ", e);

@@ -395,10 +395,13 @@ public final class TermuxPropertyConstants {
      */
     // Default: "extra-keys"
     public static final String KEY_EXTRA_KEYS = "extra-keys";
+    public static final String KEY_EXTRA_KEYS2 = "extra-keys2";
+
 
     //public static final String DEFAULT_IVALUE_EXTRA_KEYS = "[[ESC, TAB, CTRL, ALT, {key: '-', popup: '|'}, DOWN, UP]]"; // Single row
     // Double row
     public static final String DEFAULT_IVALUE_EXTRA_KEYS = "[['ESC', '/', {key: '|', popup: '-'}, 'HOME', 'UP', 'END', 'PGUP', 'PASTE'], ['TAB', {key: 'CTRL', popup: 'SHIFT'}, 'ALT', 'LEFT', 'DOWN', 'RIGHT', 'PGDN', {key: 'KEYBOARD', popup: {macro: 'CTRL c'}}]]";
+    public static final String DEFAULT_IVALUE_EXTRA_KEYS2 = "[[F1, F2, F3, F4, 'UP', 'END', 'PGUP', 'PASTE'], ['[', ']', 'ALT', 'LEFT', 'DOWN', 'RIGHT', 'PGDN', {key: 'KEYBOARD', popup: {macro: 'CTRL c'}}]]";
 
     /**
      * Defines the key for extra keys style
@@ -478,7 +481,7 @@ public final class TermuxPropertyConstants {
     KEY_BELL_BEHAVIOUR, KEY_DELETE_TMPDIR_FILES_OLDER_THAN_X_DAYS_ON_EXIT, KEY_TERMINAL_CURSOR_BLINK_RATE, KEY_TERMINAL_CURSOR_STYLE, KEY_TERMINAL_MARGIN_HORIZONTAL, KEY_TERMINAL_MARGIN_VERTICAL, KEY_TERMINAL_TRANSCRIPT_ROWS, /* float */
     KEY_TERMINAL_TOOLBAR_HEIGHT_SCALE_FACTOR, /* Integer */
     KEY_SHORTCUT_CREATE_SESSION, KEY_SHORTCUT_NEXT_SESSION, KEY_SHORTCUT_PREVIOUS_SESSION, KEY_SHORTCUT_RENAME_SESSION, /* String */
-    KEY_BACK_KEY_BEHAVIOUR, KEY_DEFAULT_WORKING_DIRECTORY, KEY_EXTRA_KEYS, KEY_EXTRA_KEYS_STYLE, KEY_NIGHT_MODE, KEY_SOFT_KEYBOARD_TOGGLE_BEHAVIOUR, KEY_VOLUME_KEYS_BEHAVIOUR, KEY_BACKGROUND_OVERLAY_COLOR));
+    KEY_BACK_KEY_BEHAVIOUR, KEY_DEFAULT_WORKING_DIRECTORY, KEY_EXTRA_KEYS, KEY_EXTRA_KEYS2, KEY_EXTRA_KEYS_STYLE, KEY_NIGHT_MODE, KEY_SOFT_KEYBOARD_TOGGLE_BEHAVIOUR, KEY_VOLUME_KEYS_BEHAVIOUR, KEY_BACKGROUND_OVERLAY_COLOR));
 
     /**
      * Defines the set for keys loaded by termux that have default boolean behaviour with false as default.
