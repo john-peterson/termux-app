@@ -325,8 +325,12 @@ public final class TermuxPropertyConstants {
 
     /** Defines the key for extra keys */
     public static final String KEY_EXTRA_KEYS =  "extra-keys"; // Default: "extra-keys"
+    public static final String KEY_EXTRA_KEYS2 = "extra-keys2";
+
+
     //public static final String DEFAULT_IVALUE_EXTRA_KEYS = "[[ESC, TAB, CTRL, ALT, {key: '-', popup: '|'}, DOWN, UP]]"; // Single row
     public static final String DEFAULT_IVALUE_EXTRA_KEYS = "[['ESC','/',{key: '-', popup: '|'},'HOME','UP','END','PGUP'], ['TAB','CTRL','ALT','LEFT','DOWN','RIGHT','PGDN']]"; // Double row
+    public static final String DEFAULT_IVALUE_EXTRA_KEYS2 = "[[F1, F2, F3, F4, 'UP', 'END', 'PGUP', 'PASTE'], ['[', ']', 'ALT', 'LEFT', 'DOWN', 'RIGHT', 'PGDN', {key: 'KEYBOARD', popup: {macro: 'CTRL c'}}]]";
 
     /** Defines the key for extra keys style */
     public static final String KEY_EXTRA_KEYS_STYLE =  "extra-keys-style"; // Default: "extra-keys-style"
@@ -426,7 +430,7 @@ public final class TermuxPropertyConstants {
         /* String */
         KEY_BACK_KEY_BEHAVIOUR,
         KEY_DEFAULT_WORKING_DIRECTORY,
-        KEY_EXTRA_KEYS,
+        KEY_EXTRA_KEYS, KEY_EXTRA_KEYS2,
         KEY_EXTRA_KEYS_STYLE,
         KEY_NIGHT_MODE,
         KEY_SOFT_KEYBOARD_TOGGLE_BEHAVIOUR,
