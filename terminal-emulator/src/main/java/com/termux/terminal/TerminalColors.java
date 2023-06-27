@@ -45,7 +45,6 @@ public final class TerminalColors {
             mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND] = 0xffffffff;
             mCurrentColors[TextStyle.COLOR_INDEX_FOREGROUND] = 0xff202124;
             mCurrentColors[TextStyle.COLOR_INDEX_CURSOR] = 0xff5f6368;
-            mCurrentColors[TextStyle.COLOR_INDEX_BRIGHT_WHITE] = 0xff999999;
         }
     }
 
