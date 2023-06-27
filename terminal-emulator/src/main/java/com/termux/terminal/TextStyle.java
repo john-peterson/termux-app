@@ -63,6 +63,8 @@ public final class TextStyle {
 
     public final static int COLOR_INDEX_CURSOR = 258;
 
+    public final static int COLOR_INDEX_BRIGHT_WHITE = 15;
+
     /**
      * The 256 standard color entries and the three special (foreground, background and cursor) ones.
      */
