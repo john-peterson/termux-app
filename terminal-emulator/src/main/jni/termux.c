@@ -9,11 +9,33 @@
 #include <sys/wait.h>
 #include <termios.h>
 #include <unistd.h>
+#include <liblmkd_utils.h>
 
 #define TERMUX_UNUSED(x) x __attribute__((__unused__))
 #ifdef __APPLE__
 # define LACKS_PTSNAME_R
 #endif
+
+#define LOG_TAG "termux-fork"
+
+void lmk(){
+int retval;
+//ALOGI ( "register with lmk uid pid: %i %i\n", getuid(), getpid());
+                            struct lmk_procprio params;
+            params.pid = getpid();
+            params.uid = getuid();
+            params.oomadj = 1000;
+            params.ptype = PROC_TYPE_APP;
+            retval = lmkd_connect();
+            retval = lmkd_register_proc(retval, &params);
+            //  if (retval > 0)
+  //          ALOGE( "Failed to communicate with lmkd: %s", strerror(errno));
+                
+        //   ALOGI("create memcg for uid pid: %i %i\n", getuid(), getpid());
+        //        retval = createProcessGroup(getuid(), getpid(), true);
+            //    if (retval > 0)
+        //            ALOGE("could not create memcg: %s\n", strerror (errno));
+}
 
 static int throw_runtime_exception(JNIEnv* env, char const* message)
 {
