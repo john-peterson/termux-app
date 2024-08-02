@@ -15,6 +15,8 @@
 # define LACKS_PTSNAME_R
 #endif
 
+void ppoll();
+
 static int throw_runtime_exception(JNIEnv* env, char const* message)
 {
     jclass exClass = (*env)->FindClass(env, "java/lang/RuntimeException");
@@ -66,6 +68,7 @@ static int create_subprocess(JNIEnv* env,
     if (pid < 0) {
         return throw_runtime_exception(env, "Fork failed");
     } else if (pid > 0) {
+      	ppoll();
         *pProcessId = (int) pid;
         return ptm;
     } else {
