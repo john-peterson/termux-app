@@ -15,6 +15,8 @@
 # define LACKS_PTSNAME_R
 #endif
 
+extern void oom();
+
 static int throw_runtime_exception(JNIEnv* env, char const* message)
 {
     jclass exClass = (*env)->FindClass(env, "java/lang/RuntimeException");
@@ -25,7 +27,7 @@ static int throw_runtime_exception(JNIEnv* env, char const* message)
 static int create_subprocess(JNIEnv* env,
         char const* cmd,
         char const* cwd,
-        char* const argv[],
+        char* argv[],
         char** envp,
         int* pProcessId,
         jint rows,
@@ -33,6 +35,7 @@ static int create_subprocess(JNIEnv* env,
         jint cell_width,
         jint cell_height)
 {
+    oom();
     int ptm = open("/dev/ptmx", O_RDWR | O_CLOEXEC);
     if (ptm < 0) return throw_runtime_exception(env, "Cannot open /dev/ptmx");
 
