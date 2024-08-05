@@ -62,12 +62,14 @@ Here's a quick tutorial on how to add it to the app.
 ## Contents
 - [Phantom Process Killer](#Phantom-Process-Killer)
 - [Nightly Releases](#Nightly-Builds)
+- [Build Termux](#Build-Termux)
 - [Wikis](#Wikis)
 - [Miscellaneous](#Miscellaneous)
 - [True italic fonts](#True-italic-fonts)
 - [Displaying images in Termux](#Displaying-images-in-Termux)
 - [Running termux from ADB](#Running-termux-from-ADB)
 - [Debugging](#Debugging)
+- [Out Of Memory OOM protection](#Out-Of-Memory-OOM-protection)
 - [Disclaimer](#Disclaimer)
 - [Forking Instructions](#Forking)
 - [Special Thanks](#Special-Thanks)
@@ -176,6 +178,26 @@ Version: 3
 
 ***
 
+## Build Termux
+
+Notice that Termux now includes submodules. If earlyoom is missing submodules are missing.
+
+If you already cloned the repo use
+
+```
+git submodule update --init --recursive
+```
+
+For new clones use
+
+```
+git clone --recursive --depth 1 --shallow-submodules https://github.com/KitsunedFox/termux-monet
+``` 
+
+Complete build instructions are in [docs/en/build_termux.md](docs/en/build_termux.md) and please update it with complete ARM host instructions for building termux in termux
+
+***
+
 ## Wikis
 
 - [Termux Wiki](https://wiki.termux.com/wiki/)
@@ -269,7 +291,13 @@ Users must post complete report (optionally without sensitive info) when reporti
 - `Verbose` - Start logging verbose messages.
 ##
 
-***
+## Out Of Memory OOM protection
+
+Because termux has no access to lmk it runs earlyoom with negligible overhead. This has only benefits because it reapes programs before they can cause any harm. A common reason is building termux itself when gradle requires too much memory because the phones have a smaller ram/cpu ratio than they considered. They assume they can build on eight cores which exhaust all memory and might stall the phone and leave system files in a dirty state that cause a boot failure. If a program dies without reporting errors run this command to learn if it was reaped by the memory manager 
+
+```
+logcat -d|grep oom
+```
 
 ## Disclaimer
 > There's no termux monet official groups other than github.com/termux-monet. If you see any Telegram or Threads group, that's not made by me! Any group that's not mentioned in this README.md is not official.
