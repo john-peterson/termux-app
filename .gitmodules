@@ -1,0 +1,4 @@
+[submodule "earlyoom"]
+	path = earlyoom
+	url = https://github.com/john-peterson/earlyoom
+	branch = termux
