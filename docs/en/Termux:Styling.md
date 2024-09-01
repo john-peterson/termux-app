@@ -30,3 +30,7 @@ User can place own files to these paths, which can be useful if a
 certain font or color scheme is not available through the add-on. If you
 wish to do styling configuration manually, Termux:Styling application is
 not necessary.
+
+## day night colours 
+
+day/night.properties can be placed in the same path as colors.properties and will be loaded depending on system settings 

@@ -1174,11 +1174,15 @@ public final class TermuxConstants {
      */
     // Default: "/data/data/com.termux/files/home/.termux/colors.properties"
     public static final String TERMUX_COLOR_PROPERTIES_FILE_PATH = TERMUX_DATA_HOME_DIR_PATH + "/colors.properties";
+    public static final String TERMUX_COLOR_DAY_PATH = TERMUX_DATA_HOME_DIR_PATH + "/day.properties";
+    public static final String TERMUX_COLOR_NIGHT_PATH = TERMUX_DATA_HOME_DIR_PATH + "/night.properties";
 
     /**
      * Termux app and Termux:Styling colors.properties file
      */
     public static final File TERMUX_COLOR_PROPERTIES_FILE = new File(TERMUX_COLOR_PROPERTIES_FILE_PATH);
+    public static final File TERMUX_COLOR_DAY_FILE = new File(TERMUX_COLOR_DAY_PATH);
+    public static final File TERMUX_COLOR_NIGHT_FILE = new File(TERMUX_COLOR_NIGHT_PATH);
 
     /**
      * Termux app and Termux:Styling font.ttf file path
