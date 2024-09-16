@@ -26,6 +26,8 @@ import com.termux.app.TermuxService;
 import com.termux.shared.termux.settings.properties.TermuxPropertyConstants;
 import com.termux.shared.termux.terminal.io.BellHandler;
 import com.termux.shared.logger.Logger;
+import com.termux.shared.theme.ThemeUtils;
+import com.termux.shared.theme.NightMode;
 import com.termux.terminal.TerminalColors;
 import com.termux.terminal.TerminalSession;
 import com.termux.terminal.TerminalSessionClient;
@@ -259,6 +261,11 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
         return mActivity.getProperties().getTerminalCursorStyle();
     }
 
+    @Override
+    public boolean shouldEnableDarkTheme() {
+        return ThemeUtils.shouldEnableDarkTheme(mActivity, NightMode.getAppNightMode().getName());
+    }
+
     /**
      * Load mBellSoundPool
      */
@@ -293,6 +300,7 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
         if (mActivity.getTerminalView().attachSession(session)) {
             // notify about switched session if not already displaying the session
             notifyOfSessionChange();
+            checkForFontAndColors();
         }
         // We call the following even when the session is already being displayed since config may
         // be stale, like current session not selected or scrolled to.
@@ -497,7 +505,7 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
                     props.load(in);
                 }
             }
-            TerminalColors.COLOR_SCHEME.updateWith(props);
+            TerminalColors.COLOR_SCHEME.updateWith(props, !shouldEnableDarkTheme());
             TerminalSession session = mActivity.getCurrentSession();
             if (session != null && session.getEmulator() != null) {
                 session.getEmulator().mColors.reset();
