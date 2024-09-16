@@ -25,6 +25,7 @@ import com.termux.shared.termux.TermuxConstants;
 import com.termux.app.TermuxService;
 import com.termux.shared.termux.settings.properties.TermuxPropertyConstants;
 import com.termux.shared.termux.terminal.io.BellHandler;
+import com.termux.shared.theme.ThemeUtils;
 import com.termux.shared.logger.Logger;
 import com.termux.terminal.TerminalColors;
 import com.termux.terminal.TerminalSession;
@@ -293,6 +294,7 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
         if (mActivity.getTerminalView().attachSession(session)) {
             // notify about switched session if not already displaying the session
             notifyOfSessionChange();
+            checkForFontAndColors();
         }
         // We call the following even when the session is already being displayed since config may
         // be stale, like current session not selected or scrolled to.
@@ -497,7 +499,7 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
                     props.load(in);
                 }
             }
-            TerminalColors.COLOR_SCHEME.updateWith(props);
+            TerminalColors.COLOR_SCHEME.updateWith(props, !ThemeUtils.shouldEnableDarkTheme(mActivity));
             TerminalSession session = mActivity.getCurrentSession();
             if (session != null && session.getEmulator() != null) {
                 session.getEmulator().mColors.reset();

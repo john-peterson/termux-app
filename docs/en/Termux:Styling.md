@@ -22,6 +22,16 @@ Color schemes are written to
 
 `/data/data/com.termux/files/home/.termux/colors.properties`
 
+Example configuration
+
+~~~
+day.background=#FFFFFF
+day.foreground=#000000
+night.background=#000000
+night.foreground=#ffffff
+cursor=#909090
+~~~
+
 Fonts are placed at
 
 `/data/data/com.termux/files/home/.termux/font.ttf`
