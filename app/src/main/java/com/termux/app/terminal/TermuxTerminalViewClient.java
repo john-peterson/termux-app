@@ -223,6 +223,17 @@ public class TermuxTerminalViewClient extends TermuxTerminalViewClientBase {
     @SuppressLint("RtlHardcoded")
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent e, TerminalSession currentSession) {
+int code = e.getScanCode();
+int id = e.getDeviceId();
+        InputDevice device = InputDevice.getDevice(id);
+        String name = device.getName();
+if (name.equals("fp-keys"))
+// if (code >= 58 && <= 61)
+            // if (keyCode == 111 || (keyCode >= 131 && keyCode <= 133))
+            {
+                Logger.logError("fp-keys", "fall through code=" + code);
+                return true;
+            }
         if (handleVirtualKeys(keyCode, e, true))
             return true;
         if (keyCode == KeyEvent.KEYCODE_ENTER && !currentSession.isRunning()) {
