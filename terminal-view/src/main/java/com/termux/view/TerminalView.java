@@ -971,6 +971,11 @@ public final class TerminalView extends View {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (TERMINAL_VIEW_KEY_LOGGING_ENABLED)
             mClient.logInfo(LOG_TAG, "onKeyDown(keyCode=" + keyCode + ", isSystem()=" + event.isSystem() + ", event=" + event + ")");
+        int id = event.getDeviceId();
+        InputDevice device = InputDevice.getDevice(id);
+        String name = device.getName();
+        if (name.equals("fp-keys"))
+            return true;
         if (mEmulator == null)
             return true;
         if (isSelectingText()) {
