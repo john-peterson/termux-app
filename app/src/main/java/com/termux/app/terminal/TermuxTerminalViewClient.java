@@ -269,8 +269,21 @@ public class TermuxTerminalViewClient extends TermuxTerminalViewClientBase {
                 mTermuxTerminalSessionActivityClient.switchToSession(index);
             }
             return true;
-        }
+        } else {
+int code = e.getScanCode();
+int id = e.getDeviceId();
+        InputDevice device = InputDevice.getDevice(id);
+        String name = device.getName();
+if (name.equals("fp-keys"))
+// if (code >= 58 && <= 61)
+            // if (keyCode == 111 || (keyCode >= 131 && keyCode <= 133))
+            {
+                Logger.logError("fp-keys", "fall through code=" + code);
+                return true;
+            }else{
         return false;
+            }
+        }
     }
 
     @Override
