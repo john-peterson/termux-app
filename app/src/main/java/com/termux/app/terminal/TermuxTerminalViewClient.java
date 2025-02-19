@@ -223,6 +223,8 @@ public class TermuxTerminalViewClient extends TermuxTerminalViewClientBase {
     @SuppressLint("RtlHardcoded")
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent e, TerminalSession currentSession) {
+                Logger.logError("scroll", "KEY PRESSED scroll down");
+               mActivity.getTerminalView().onScreenUpdated(2);
 int code = e.getScanCode();
 int id = e.getDeviceId();
         InputDevice device = InputDevice.getDevice(id);

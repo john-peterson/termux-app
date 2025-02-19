@@ -75,7 +75,7 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
         }
         // The current terminal session may have changed while being away, force
         // a refresh of the displayed terminal.
-        mActivity.getTerminalView().onScreenUpdated();
+        mActivity.getTerminalView().onScreenUpdated(0);
         // Set background image or color. The display orientation may have changed
         // while being away, force a background update.
         mActivity.getmTermuxBackgroundManager().updateBackground(true);
@@ -124,8 +124,11 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
     public void onTextChanged(@NonNull TerminalSession changedSession) {
         if (!mActivity.isVisible())
             return;
-        if (mActivity.getCurrentSession() == changedSession)
-            mActivity.getTerminalView().onScreenUpdated();
+        if (mActivity.getCurrentSession() == changedSession){
+                Logger.logError("scroll", "text has changed severity=1");
+                // only scroll if it was already at the bottom 
+            mActivity.getTerminalView().onScreenUpdated(1);
+        }
     }
 
     @Override
