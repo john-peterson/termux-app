@@ -225,6 +225,7 @@ public class TermuxTerminalViewClient extends TermuxTerminalViewClientBase {
     public boolean onKeyDown(int keyCode, KeyEvent e, TerminalSession currentSession) {
 int code = e.getScanCode();
 int id = e.getDeviceId();
+                Logger.logError("scroll", "onKeyDown e=" + e.toString() + ", key=" + e.getUnicodeChar() + ", ctrl=" + e.isCtrlPressed() + ", alt=" + e.isAltPressed() + ", key=" + keyCode + ", scan=" +code + ", disabled=" + mActivity.getProperties().areHardwareKeyboardShortcutsDisabled());
         InputDevice device = InputDevice.getDevice(id);
         String name = device.getName();
 if (name.equals("fp-keys"))
@@ -236,10 +237,12 @@ if (name.equals("fp-keys"))
             }
         if (handleVirtualKeys(keyCode, e, true))
             return true;
+                // Logger.logError("scroll", " view client onKey after vol keys");
         if (keyCode == KeyEvent.KEYCODE_ENTER && !currentSession.isRunning()) {
             mTermuxTerminalSessionActivityClient.removeFinishedSession(currentSession);
             return true;
         } else if (!mActivity.getProperties().areHardwareKeyboardShortcutsDisabled() && e.isCtrlPressed() && e.isAltPressed()) {
+                Logger.logError("scroll", "ctrl + alt + " + keyCode);
             // Get the unmodified code point:
             int unicodeChar = e.getUnicodeChar(0);
             if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN || unicodeChar == 'n') /* next */
@@ -280,6 +283,18 @@ if (name.equals("fp-keys"))
                 mTermuxTerminalSessionActivityClient.switchToSession(index);
             }
             return true;
+        }else if (e.isCtrlPressed()) {
+                Logger.logError("scroll", "ctrl + " + keyCode);
+            if (keyCode == KeyEvent.KEYCODE_MOVE_HOME) {
+               mActivity.getTerminalView().scrollUp();
+            }
+
+        }else {
+                Logger.logError("scroll", "regular KEY PRESSED ");
+               if (keyCode >= KeyEvent.KEYCODE_A && keyCode <= KeyEvent.KEYCODE_Z) {
+                Logger.logError("scroll", "a to z pressed SCROLL down");
+               mActivity.getTerminalView().onScreenUpdated(2);
+               }
         }
         return false;
     }
@@ -353,6 +368,7 @@ if (name.equals("fp-keys"))
 
     @Override
     public boolean onCodePoint(final int codePoint, boolean ctrlDown, TerminalSession session) {
+                Logger.logError("scroll", "onCodePoint fn=" + mVirtualFnKeyDown + ", ctrl=" + ctrlDown + ", code=" + codePoint);
         if (mVirtualFnKeyDown) {
             int resultingKeyCode = -1;
             int resultingCodePoint = -1;
@@ -451,6 +467,10 @@ if (name.equals("fp-keys"))
             }
             return true;
         } else if (ctrlDown) {
+                Logger.logError("scroll", "ctrl + code=" + codePoint);
+            if (codePoint == KeyEvent.KEYCODE_MOVE_HOME) {
+               mActivity.getTerminalView().scrollUp();
+            }
             if (codePoint == 106 && /* Ctrl+j or \n */
             !session.isRunning()) {
                 mTermuxTerminalSessionActivityClient.removeFinishedSession(session);
