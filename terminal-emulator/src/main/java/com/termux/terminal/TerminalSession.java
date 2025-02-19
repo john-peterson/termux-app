@@ -113,6 +113,7 @@ public final class TerminalSession extends TerminalOutput {
      *               for communication between {@link TerminalSession} and its client.
      */
     public void updateTerminalSessionClient(TerminalSessionClient client) {
+                Logger.logWarn(mClient, "scroll", "session update client");
         mClient = client;
         if (mEmulator != null)
             mEmulator.updateTerminalSessionClient(client);
@@ -130,6 +131,11 @@ public final class TerminalSession extends TerminalOutput {
      * Inform the attached pty of the new size and reflow or initialize the emulator.
      */
     public void updateSize(int columns, int rows, int fontWidth, int fontHeight) {
+        try {
+            throw new Exception("blalabla");
+        } catch (Exception e) {
+        Logger.logStackTraceWithMessage(mClient, "scroll", "session update", e);             }
+                Logger.logWarn(mClient, "scroll", "session update rows=" + rows);
         if (mEmulator == null) {
             initializeEmulator(columns, rows, fontWidth, fontHeight);
         } else {
@@ -152,6 +158,7 @@ public final class TerminalSession extends TerminalOutput {
      * @param rows    The number of rows in the terminal window.
      */
     public void initializeEmulator(int columns, int rows, int cellWidth, int cellHeight) {
+                Logger.logWarn(mClient, "scroll", "session init emu rows=" + rows);
         mEmulator = new TerminalEmulator(this, mBoldWithBright, columns, rows, mTranscriptRows, mClient);
         int[] processId = new int[1];
         mTerminalFileDescriptor = JNI.createSubprocess(mShellPath, mCwd, mArgs, mEnv, processId, rows, columns, cellWidth, cellHeight);
@@ -263,6 +270,7 @@ public final class TerminalSession extends TerminalOutput {
      * Notify the {@link #mClient} that the screen has changed.
      */
     protected void notifyScreenUpdate() {
+                Logger.logWarn(mClient, "scroll", "session notify screen update > client text changed. were we at the bottom?");
         mClient.onTextChanged(this);
     }
 

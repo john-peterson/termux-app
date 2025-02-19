@@ -85,7 +85,8 @@ public final class TerminalView extends View {
     /**
      * The top row of text to display. Ranges from -activeTranscriptRows to 0.
      */
-    int mTopRow;
+    int mTopRow = 0;
+    int mTopRowOld = 0;
 
     int[] mDefaultSelectors = new int[] { -1, -1, -1, -1 };
 
@@ -326,7 +327,8 @@ public final class TerminalView extends View {
     public boolean attachSession(TerminalSession session) {
         if (session == mTermSession)
             return false;
-        mTopRow = 0;
+                    mClient.logError("scroll", "attach top row=" + mTopRow);
+        // mTopRow = 0;
         mTermSession = session;
         mEmulator = null;
         mCombiningAccent = 0;
@@ -480,6 +482,8 @@ public final class TerminalView extends View {
     }
 
     public void onScreenUpdated(boolean skipScrolling) {
+        try {                                  throw new Exception("blalabla");                                     } catch (Exception e) {             mClient.logStackTraceWithMessage("scroll", "screen updated row=" + mTopRow, e);             }
+                    mClient.logError("scroll", "screen updated row=" + mTopRow);
         if (mEmulator == null)
             return;
         int rowsInHistory = mEmulator.getScreen().getActiveTranscriptRows();
@@ -494,16 +498,18 @@ public final class TerminalView extends View {
                 if (isSelectingText())
                     stopTextSelectionMode();
                 if (mEmulator.isAutoScrollDisabled()) {
+                    mClient.logError("scroll", "auto scroll disabled row=-history=" + -rowsInHistory);
                     mTopRow = -rowsInHistory;
                     skipScrolling = true;
                 }
             } else {
                 skipScrolling = true;
                 mTopRow -= rowShift;
+                    mClient.logError("scroll", " row-=shift=" + rowShift);
                 decrementYTextSelectionCursors(rowShift);
             }
         }
-        if (!skipScrolling && mTopRow != 0) {
+        if ((!skipScrolling || mTopRowOld == 0) && mTopRow != 0) {
             // Scroll down if not already there.
             if (mTopRow < -3) {
                 // Awaken scroll bars only if scrolling a noticeable amount
@@ -512,7 +518,9 @@ public final class TerminalView extends View {
                 awakenScrollBars();
             }
             mTopRow = 0;
+                    mClient.logError("scroll", "top row=0");
         }
+                    mClient.logError("scroll", "top row unchanged");
         mEmulator.clearScrollCounter();
         invalidate();
         if (mAccessibilityEnabled) {
@@ -520,6 +528,7 @@ public final class TerminalView extends View {
             // so that the accessibility service gets the updated text
             sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED);
         }
+            mTopRowOld = mTopRow;
     }
 
     // ultimately called as a result of the code in updateScreen
@@ -759,6 +768,7 @@ public final class TerminalView extends View {
                 handleKeyCode(up ? KeyEvent.KEYCODE_DPAD_UP : KeyEvent.KEYCODE_DPAD_DOWN, 0);
             } else {
                 mTopRow = Math.min(0, Math.max(-(mEmulator.getScreen().getActiveTranscriptRows()), mTopRow + (up ? -1 : 1)));
+                    mClient.logError("scroll", "scrolling manually ");
                 if (!awakenScrollBars())
                     invalidate();
             }
@@ -1199,8 +1209,12 @@ public final class TerminalView extends View {
             // Update mTerminalCursorBlinkerRunnable inner class mEmulator on session change
             if (mTerminalCursorBlinkerRunnable != null)
                 mTerminalCursorBlinkerRunnable.setEmulator(mEmulator);
+        // if (! mEmulator.isAutoScrollDisabled()) {
+        if (false) {
             mTopRow = 0;
             scrollTo(0, 0);
+        }
+                    mClient.logError("scroll", "terminal resized top row="+ mTopRow);
             invalidate();
         }
     }
@@ -1629,6 +1643,7 @@ public final class TerminalView extends View {
 
     @Override
     protected void onDetachedFromWindow() {
+                    mClient.logError("scroll", "detached");
         super.onDetachedFromWindow();
         if (mTextSelectionCursorController != null) {
             // Might solve the following exception
