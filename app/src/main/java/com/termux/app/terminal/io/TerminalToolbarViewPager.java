@@ -29,6 +29,14 @@ public class TerminalToolbarViewPager {
             this.mSavedTextInput = savedTextInput;
         }
 
+
+        @Override
+public void finishUpdate(@NonNull View container) {
+    ViewPager pager = mActivity.getTerminalToolbarViewPager();
+                    /* pager.setCurrentItem(1, true); */
+/* pager.setCurrentItem(1, false); */
+}
+
         @Override
         public int getCount() {
             return 3;
@@ -61,7 +69,7 @@ public class TerminalToolbarViewPager {
                 final Button button = layout.findViewById(R.id.terminal_toolbar_text_input_button);
                 button.setOnClickListener(v -> {
                     ViewPager pager = mActivity.getTerminalToolbarViewPager();
-                    pager.setCurrentItem(0, true);
+                    pager.setCurrentItem(1, true);
                 });
 
                 final EditText editText = layout.findViewById(R.id.terminal_toolbar_text_input);
