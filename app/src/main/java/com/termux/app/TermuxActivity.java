@@ -379,7 +379,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     private void configureExtraKeysBackground() {
         View extraKeysBackground = findViewById(R.id.extrakeys_background);
         View extraKeysBackgroundBlur = findViewById(R.id.extrakeys_backgroundblur);
-        boolean isToolbarToggled = mPreferences.toogleShowTerminalToolbar();
+        boolean isToolbarToggled = mPreferences.shouldShowTerminalToolbar();
 
         if (!isToolbarToggled) {
             extraKeysBackgroundBlur.setVisibility(View.GONE);
@@ -565,6 +565,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (savedInstanceState != null)
             savedTextInput = savedInstanceState.getString(ARG_TERMINAL_TOOLBAR_TEXT_INPUT);
         terminalToolbarViewPager.setAdapter(new TerminalToolbarViewPager.PageAdapter(this, savedTextInput));
+        try {
+        /* if (terminalToolbarViewPager.getCount() == 3) */
+        terminalToolbarViewPager.setCurrentItem(1, false);
+        /* terminalToolbarViewPager.setPrimaryItem(1); */
+        } catch (Exception e) {}
         terminalToolbarViewPager.addOnPageChangeListener(new TerminalToolbarViewPager.OnPageChangeListener(this, terminalToolbarViewPager));
     }
 
@@ -938,7 +943,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     public boolean isTerminalToolbarTextInputViewSelected() {
-        return getTerminalToolbarViewPager().getCurrentItem() == 1;
+        return getTerminalToolbarViewPager().getCurrentItem() == 2;
     }
 
     public void termuxSessionListNotifyUpdated() {
