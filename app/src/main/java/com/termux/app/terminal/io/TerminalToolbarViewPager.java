@@ -44,6 +44,7 @@ public class TerminalToolbarViewPager {
         public Object instantiateItem(@NonNull ViewGroup collection, int position) {
             LayoutInflater inflater = LayoutInflater.from(mActivity);
             View layout;
+            position ^= 1;
             if (position == 0 || position == 1) {
                 layout = inflater.inflate(R.layout.view_terminal_toolbar_extra_keys, collection, false);
                 ExtraKeysView extraKeysView = (ExtraKeysView) layout;
@@ -61,7 +62,7 @@ public class TerminalToolbarViewPager {
                 final Button button = layout.findViewById(R.id.terminal_toolbar_text_input_button);
                 button.setOnClickListener(v -> {
                     ViewPager pager = mActivity.getTerminalToolbarViewPager();
-                    pager.setCurrentItem(0, true);
+                    pager.setCurrentItem(1, true);
                 });
 
                 final EditText editText = layout.findViewById(R.id.terminal_toolbar_text_input);
