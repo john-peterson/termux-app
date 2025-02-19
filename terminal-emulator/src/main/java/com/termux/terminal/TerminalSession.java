@@ -30,6 +30,7 @@ import java.util.UUID;
 public final class TerminalSession extends TerminalOutput {
 
     private static final int MSG_NEW_INPUT = 1;
+    private static final int MSG_NEW_OUTPUT = 2;
 
     private static final int MSG_PROCESS_EXITED = 4;
 
@@ -113,6 +114,7 @@ public final class TerminalSession extends TerminalOutput {
      *               for communication between {@link TerminalSession} and its client.
      */
     public void updateTerminalSessionClient(TerminalSessionClient client) {
+                Logger.logWarn(mClient, "scroll", "session update client");
         mClient = client;
         if (mEmulator != null)
             mEmulator.updateTerminalSessionClient(client);
@@ -130,6 +132,8 @@ public final class TerminalSession extends TerminalOutput {
      * Inform the attached pty of the new size and reflow or initialize the emulator.
      */
     public void updateSize(int columns, int rows, int fontWidth, int fontHeight) {
+        // try {       throw new Exception("blalabla");    } catch (Exception e) { Logger.logStackTraceWithMessage(mClient, "scroll", "session update size trace", e);             }
+                Logger.logWarn(mClient, "scroll", "session update size rows=" + rows);
         if (mEmulator == null) {
             initializeEmulator(columns, rows, fontWidth, fontHeight);
         } else {
@@ -152,6 +156,7 @@ public final class TerminalSession extends TerminalOutput {
      * @param rows    The number of rows in the terminal window.
      */
     public void initializeEmulator(int columns, int rows, int cellWidth, int cellHeight) {
+                Logger.logWarn(mClient, "scroll", "session init emu rows=" + rows);
         mEmulator = new TerminalEmulator(this, mBoldWithBright, columns, rows, mTranscriptRows, mClient);
         int[] processId = new int[1];
         mTerminalFileDescriptor = JNI.createSubprocess(mShellPath, mCwd, mArgs, mEnv, processId, rows, columns, cellWidth, cellHeight);
@@ -188,6 +193,7 @@ public final class TerminalSession extends TerminalOutput {
                         if (bytesToWrite == -1)
                             return;
                         termOut.write(buffer, 0, bytesToWrite);
+                        mMainThreadHandler.sendEmptyMessage(MSG_NEW_OUTPUT);
                     }
                 } catch (IOException e) {
                     // Ignore.
@@ -263,6 +269,7 @@ public final class TerminalSession extends TerminalOutput {
      * Notify the {@link #mClient} that the screen has changed.
      */
     protected void notifyScreenUpdate() {
+        Logger.logWarn(mClient, "scroll", "session screen update severity=1");
         mClient.onTextChanged(this);
     }
 
@@ -390,9 +397,11 @@ public final class TerminalSession extends TerminalOutput {
 
         @Override
         public void handleMessage(Message msg) {
+                Logger.logWarn(mClient, "scroll", "session MSG=" + msg.what);
             int bytesRead = mProcessToTerminalIOQueue.read(mReceiveBuffer, false);
             if (bytesRead > 0) {
                 mEmulator.append(mReceiveBuffer, bytesRead);
+                Logger.logWarn(mClient, "scroll", "session bytes appended msg=" + msg.what);
                 notifyScreenUpdate();
             }
             if (msg.what == MSG_PROCESS_EXITED) {

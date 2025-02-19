@@ -162,14 +162,17 @@ public class TextIOActivity extends AppCompatActivity {
 
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        Logger.logError("scroll","IO before changed");
                 }
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
+        Logger.logError("scroll","IO text changed");
                 }
 
                 @Override
                 public void afterTextChanged(Editable editable) {
+        Logger.logError("scroll","IO after change");
                     if (editable != null)
                         updateTextIOTextCharacterUsage(editable.toString());
                 }

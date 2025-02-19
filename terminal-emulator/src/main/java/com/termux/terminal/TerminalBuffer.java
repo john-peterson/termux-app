@@ -200,9 +200,17 @@ public final class TerminalBuffer {
      */
     public int externalToInternalRow(int externalRow) {
         if (externalRow < -mActiveTranscriptRows || externalRow > mScreenRows)
-            throw new IllegalArgumentException("extRow=" + externalRow + ", mScreenRows=" + mScreenRows + ", mActiveTranscriptRows=" + mActiveTranscriptRows);
+            // throw new IllegalArgumentException("extRow=" + externalRow + " > mScreenRows=" + mScreenRows + " || < -mActiveTranscriptRows=" + -mActiveTranscriptRows);
+            // Logger.logError("scroll", "external row=" + externalRow);
+            if (externalRow < -mActiveTranscriptRows) {
+                externalRow = -mActiveTranscriptRows;
+            // Logger.logError("scroll", "external row=-mActiveTranscriptRows");
+            }
         final int internalRow = mScreenFirstRow + externalRow;
-        return (internalRow < 0) ? (mTotalRows + internalRow) : (internalRow % mTotalRows);
+            // Logger.logError("scroll", "internal row=mScreenFirstRow + externalRow=" + internalRow);
+            int ret = (internalRow < 0) ? (mTotalRows + internalRow) : (internalRow % mTotalRows);
+            // Logger.logError("scroll", "return value=" + ret);
+            return ret;
     }
 
     public void setLineWrap(int row) {

@@ -427,6 +427,7 @@ public abstract class TermuxSharedProperties {
      * @return Returns the internal value for value.
      */
     public static Integer getCodePointForSessionShortcuts(String key, String value) {
+            Logger.logError("scroll", "get Keyboard shortcut key=" + key + ", val=" + value);
         if (key == null)
             return null;
         if (value == null)

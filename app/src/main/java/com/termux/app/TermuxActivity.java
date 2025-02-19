@@ -599,10 +599,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     public void toggleTerminalToolbar() {
         ViewPager terminalToolbarViewPager = getTerminalToolbarViewPager();
-        if (terminalToolbarViewPager == null) return;
+        if (terminalToolbarViewPager == null){
+                        Logger.logError("keys not showing bug", "main activity toggle view pager=null");
+            return;
+        }
     
         boolean showNow = mPreferences.toogleShowTerminalToolbar();
-                        Logger.logError("keys not showing bug", "pref toggle show tt=" + showNow);
+                        Logger.logError("keys not showing bug", "main activity toggle show toolbar=" + showNow);
         Logger.showToast(this, showNow ? getString(R.string.msg_enabling_terminal_toolbar) : getString(R.string.msg_disabling_terminal_toolbar), true);
     
         updateViewVisibility(terminalToolbarViewPager, showNow);
