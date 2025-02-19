@@ -326,6 +326,7 @@ public final class TerminalView extends View {
     public boolean attachSession(TerminalSession session) {
         if (session == mTermSession)
             return false;
+                    mClient.logError("scroll", "attack top row=0");
         mTopRow = 0;
         mTermSession = session;
         mEmulator = null;
@@ -483,8 +484,9 @@ public final class TerminalView extends View {
         if (mEmulator == null)
             return;
         int rowsInHistory = mEmulator.getScreen().getActiveTranscriptRows();
-        if (mTopRow < -rowsInHistory)
-            mTopRow = -rowsInHistory;
+        if (mTopRow < -rowsInHistory) {
+            mTopRow = -rowsInHistory;}
+                    mClient.logError("scroll", "screen updated top row=0");
         if (isSelectingText() || mEmulator.isAutoScrollDisabled()) {
             // Do not scroll when selecting text.
             int rowShift = mEmulator.getScrollCounter();
@@ -494,6 +496,7 @@ public final class TerminalView extends View {
                 if (isSelectingText())
                     stopTextSelectionMode();
                 if (mEmulator.isAutoScrollDisabled()) {
+                    mClient.logError("scroll", "auto scroll disabled row=-history");
                     mTopRow = -rowsInHistory;
                     skipScrolling = true;
                 }

@@ -3071,6 +3071,8 @@ public final class TerminalEmulator {
 
     public void toggleAutoScrollDisabled() {
         mAutoScrollDisabled = !mAutoScrollDisabled;
+        // Logger.showToast(this, showNow ? getString(R.string.msg_enabling_terminal_toolbar) : getString(R.string.msg_disabling_terminal_toolbari), true);
+        Logger.showToast(this, "Auto scroll ",(mAutoScrollDisabled ? "disabled" : "enabled"), true);
     }
 
     /**
