@@ -944,7 +944,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     public boolean isTerminalToolbarTextInputViewSelected() {
-        return getTerminalToolbarViewPager().getCurrentItem() == 1;
+        return getTerminalToolbarViewPager().getCurrentItem() == 2;
     }
 
     public void termuxSessionListNotifyUpdated() {
