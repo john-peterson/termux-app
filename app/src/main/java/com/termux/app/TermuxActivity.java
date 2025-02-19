@@ -565,6 +565,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (savedInstanceState != null)
             savedTextInput = savedInstanceState.getString(ARG_TERMINAL_TOOLBAR_TEXT_INPUT);
         terminalToolbarViewPager.setAdapter(new TerminalToolbarViewPager.PageAdapter(this, savedTextInput));
+        try {
+        /* if (terminalToolbarViewPager.getCount() == 3) */
+        terminalToolbarViewPager.setCurrentItem(1, false);
+        /* terminalToolbarViewPager.setPrimaryItem(1); */
+        } catch (Exception e) {}
         terminalToolbarViewPager.addOnPageChangeListener(new TerminalToolbarViewPager.OnPageChangeListener(this, terminalToolbarViewPager));
     }
 
@@ -597,6 +602,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (terminalToolbarViewPager == null) return;
     
         boolean showNow = mPreferences.toogleShowTerminalToolbar();
+                        Logger.logError("keys not showing bug", "pref toggle show tt=" + showNow);
         Logger.showToast(this, showNow ? getString(R.string.msg_enabling_terminal_toolbar) : getString(R.string.msg_disabling_terminal_toolbar), true);
     
         updateViewVisibility(terminalToolbarViewPager, showNow);
