@@ -134,7 +134,7 @@ public final class TerminalBuffer {
         return builder.toString();
     }
 
-    public String getWordAtLocation(int x, int y) {
+    public String getRowAtLocation(int x, int y) {
         // Set y1 and y2 to the lines where the wrapped line starts and ends.
         // I.e. if a line that is wrapped to 3 lines starts at line 4, and this
         // is called with y=5, then y1 would be set to 4 and y2 would be set to 6.
@@ -148,6 +148,11 @@ public final class TerminalBuffer {
         }
         // Get the text for the whole wrapped line
         String text = getSelectedText(0, y1, mColumns, y2, true, true);
+        return text;
+    }
+
+    public String getWordAtLocation(int x, int y) {
+        String text = getRowAtLocation(x, y);
         // The index of x in text
         int textOffset = (y - y1) * mColumns + x;
         if (textOffset >= text.length()) {
