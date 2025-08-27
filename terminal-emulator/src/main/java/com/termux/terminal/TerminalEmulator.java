@@ -162,7 +162,8 @@ public final class TerminalEmulator {
     /**
      * Needs to be large enough to contain reasonable OSC 52 pastes.
      */
-    private static final int MAX_OSC_STRING_LENGTH = 8192;
+    // private static final int MAX_OSC_STRING_LENGTH = DataUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES;
+    private static final int MAX_OSC_STRING_LENGTH = 256 * 1024;
 
     /**
      * DECSET 1 - application cursor keys.
@@ -2514,6 +2515,7 @@ public final class TerminalEmulator {
             case // Manipulate Selection Data. Skip the optional first selection parameter(s).
             52:
                 int startIndex = textParameter.indexOf(";") + 1;
+                Logger.logError(mClient, LOG_TAG, "OSC 52");
                 try {
                     String clipboardText = new String(Base64.decode(textParameter.substring(startIndex), 0), StandardCharsets.UTF_8);
                     mSession.onCopyTextToClipboard(clipboardText);
