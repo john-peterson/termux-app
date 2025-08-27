@@ -160,9 +160,9 @@ public final class TerminalEmulator {
     private static final int MAX_ESCAPE_PARAMETERS = 16;
 
     /**
-     * Needs to be large enough to contain reasonable OSC 52 pastes.
+     * Needs to be large enough to contain max OSC 52 pastes.
      */
-    private static final int MAX_OSC_STRING_LENGTH = 8192;
+    private static final int MAX_OSC_STRING_LENGTH = 256 * 1024;
 
     /**
      * DECSET 1 - application cursor keys.
