@@ -14,6 +14,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -231,6 +232,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Logger.logDebug(LOG_TAG, "onCreate");
+        // timer();
         mIsOnResumeAfterOnCreate = true;
         if (savedInstanceState != null)
             mIsActivityRecreated = savedInstanceState.getBoolean(ARG_ACTIVITY_RECREATED, false);
@@ -343,10 +345,35 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         registerTermuxActivityBroadcastReceiver();
     }
 
+
+    // stopService() {
+                // case TERMUX_SERVICE.ACTION_STOP_SERVICE:
+                
+            // Intent serviceIntent = new Intent(this, TermuxService.class);
+            // if (Build.VERSION.SDK_INT >= 26) {
+            //     stopForegroundService(serviceIntent);
+            // } else {
+            //     stopService(serviceIntent);
+            // };
+            // }
+    
+String tag = "123time";
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Logger.logVerbose(tag, "onPause");
+	// c.cancel();
+	// c.start();
+        // if (mTermuxService != null) mTermuxService.startTimer();
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        Logger.logVerbose(LOG_TAG, "onResume");
+        Logger.logVerbose(tag, "onResume");
+        // c.cancel();
+        // if (mTermuxService != null) mTermuxService.cancelTimer();
         if (mIsInvalidState)
             return;
         if (mTermuxTerminalSessionActivityClient != null)

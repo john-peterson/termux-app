@@ -1,5 +1,12 @@
 package com.termux.app;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import android.os.CountDownTimer;
+
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
@@ -127,6 +134,7 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
     @Override
     public void onCreate() {
         Logger.logVerbose(LOG_TAG, "onCreate");
+        timer2();
         // Get Termux app SharedProperties without loading from disk since TermuxApplication handles
         // load and TermuxActivity handles reloads
         mProperties = TermuxAppSharedProperties.getProperties();
@@ -231,10 +239,61 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
         stopSelf();
     }
 
+String tag = "123time";
+
+ScheduledFuture<?> s;
+int idle = 0;
+void timer2() {
+	ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+	Handler handler = new Handler(Looper.getMainLooper());
+			PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
+s =
+	service.scheduleAtFixedRate(() -> {
+		handler.post(() -> {
+    Logger.logVerbose(tag, "tick "+idle);
+    if (pm.isInteractive())
+	idle = 0;
+else
+	idle++;
+if (idle > 5 * 60)
+    actionStopService();
+		});
+	},
+	0,
+	1,
+	// 5,
+	// TimeUnit.MINUTES
+  TimeUnit.SECONDS
+	);
+
+// future.cancel(false); // Use 'false' to not interrupt a potentially running task
+}
+
+CountDownTimer c;
+    void timer() {
+	 c =	new CountDownTimer(30 * 60 * 1000, 60 * 1000) {
+		public void onFinish() {
+    Logger.logVerbose(tag, "timeout");
+    actionStopService();
+		}
+		public void onTick(long t) {
+    Logger.logVerbose(tag, "tick "+t/1000/60);
+		}
+	};
+	c.start();
+}
+    public void cancelTimer() {
+	c.cancel();
+    }
+    public void startTimer() {
+	c.start();
+    }
+
     /**
      * Process action to stop service.
      */
-    private void actionStopService() {
+    public void actionStopService() {
         mWantsToStop = true;
         killAllTermuxExecutionCommands();
         requestStopService();
