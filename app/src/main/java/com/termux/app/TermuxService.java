@@ -58,6 +58,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 
 /**
@@ -127,6 +131,7 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
     @Override
     public void onCreate() {
         Logger.logVerbose(LOG_TAG, "onCreate");
+        timer();
         // Get Termux app SharedProperties without loading from disk since TermuxApplication handles
         // load and TermuxActivity handles reloads
         mProperties = TermuxAppSharedProperties.getProperties();
@@ -188,6 +193,9 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
         TermuxShellManager.onAppExit(this);
         SystemEventReceiver.unregisterPackageUpdateEvents(this);
         runStopForeground();
+        super.onDestroy();
+        Logger.logVerbose(LOG_TAG, "onDestroy end");
+        Os.kill(pid, OsConstants.SIGKILL); //9
     }
 
     @Override
@@ -231,10 +239,47 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
         stopSelf();
     }
 
+    int bat(){
+        Intent bs = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        int level = bs.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = bs.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        return (level * 100) / scale;
+    }
+
+    ScheduledFuture<?> s;
+    long idle = 0, off = 0;
+    void timer() {
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        s = service.scheduleAtFixedRate(() -> {
+            handler.post(() -> {
+                if (pm.isInteractive())
+                    off = System.currentTimeMillis()/1000;
+                else {
+                    long cur = System.currentTimeMillis()/1000;
+                    idle = cur - off;
+                    Logger.logVerbose(LOG_TAG, bat()+"% idle "+idle);
+                    if (idle > 30 * 60) {
+                        s.cancel(false);
+                        actionStopService();
+                    }
+                }
+            });
+        },
+        0,
+        1,
+        // TimeUnit.MINUTES
+        TimeUnit.SECONDS
+        );
+    }
+
     /**
      * Process action to stop service.
      */
     private void actionStopService() {
+        if (mWantsToStop) return;
+        Logger.logDebug(LOG_TAG, "actionStopService");
         mWantsToStop = true;
         killAllTermuxExecutionCommands();
         requestStopService();
