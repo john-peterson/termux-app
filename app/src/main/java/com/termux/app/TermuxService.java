@@ -53,6 +53,7 @@ import com.termux.shared.shell.command.ExecutionCommand.ShellCreateMode;
 import com.termux.terminal.TerminalEmulator;
 import com.termux.terminal.TerminalSession;
 import com.termux.terminal.TerminalSessionClient;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -304,48 +305,61 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
                 }
             }
         }
-        
- try{
-        logd("close remaining orphans in /proc");
-			final File proc = new File("/proc");
-   	final String[] files = proc.list();
-   	int i = 0;
-     for(String f : files) {
-         if (!new File(proc, f).isDirectory()) continue;
-         try {
-         // numbers are pids
-				int pid =  Integer.parseInt(f);
-				logd(self(pid) + " pid " + pid);
-				//skip termux 
-				if (!self(pid)) Os.kill(pid, OsConstants.SIGTERM);
-				i++;
-     	 } catch (NumberFormatException e) {}
-      }
-			  
-			} catch (Exception e) { loge(e); }
- }
-    
+        listChildren();
+    }
+
+int self = 0;
+void listChildren(){
+    try{
+        // logd("close remaining orphans in /proc");
+        logd("list remaining orphans in /proc");
+        final File proc = new File("/proc");
+        final String[] files = proc.list();
+        int i = 0;
+        for(String f : files) {
+            if (!new File(proc, f).isDirectory()) continue;
+            try {
+                // numbers are pids
+                int pid =  Integer.parseInt(f);
+                // logd("orphan "+pid+" "+name(pid,"comm"));
+                logd(String.format("orphan %d, %s, %s, %s", pid, name(pid,"comm"), name(pid,"cmdline"), name(pid, "status")));
+                if (self(pid)) self = pid;
+                //skip termux 
+                // if (!self(pid))
+                    // Os.kill(pid, OsConstants.SIGTERM); //15
+                                                       // Os.kill(pid, OsConstants.SIGABRT); //6
+                i++;
+            } catch (NumberFormatException e) {}
+        }
+    } catch (Exception e) { loge(e); }
+}
+
 boolean self(int pid){
-	  try {			
-		File f = new File(String.format("/proc/%d/cmdline",pid));
-		  FileInputStream		is = new FileInputStream(f);
-   BufferedReader  reader = new BufferedReader( new InputStreamReader(is));
-     String comm = reader.readLine();
-	//	  logd(comm + comm.trim().length() + "com.termux".length());
-		 return comm.trim().equals("com.termux");
-		}catch(Exception e) {
-			loge(e);
-		}
-		return false;
-	}
-	
+    String comm = name(pid,"comm");
+    return comm.equals("com.termux");
+}
+
+String name(int pid, String file){
+    try {
+        File f = new File(String.format("/proc/%d/%s",pid,file));
+        FileInputStream		is = new FileInputStream(f);
+        BufferedReader  reader = new BufferedReader( new InputStreamReader(is));
+        String com = reader.readLine();
+        //	  logd(comm + comm.trim().length() + "com.termux".length());
+        return com.replace("\0", " ").trim();
+    }catch(Exception e) {
+        loge(e);
+    }
+    return "null";
+}
+
 void logd(String l){
-	Logger.logDebug(LOG_TAG,l);
-	}
-	void loge(Exception e){
-		logd(e.toString() + e.getMessage());
-	}
-	
+    Logger.logDebug(LOG_TAG,l);
+}
+void loge(Exception e){
+    logd(e.toString());
+}
+
     /**
      * Process action to acquire Power and Wi-Fi WakeLocks.
      */
