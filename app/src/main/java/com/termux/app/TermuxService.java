@@ -18,8 +18,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
-import android.system.Os;
-import android.system.OsConstants;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -53,12 +51,21 @@ import com.termux.shared.shell.command.ExecutionCommand.ShellCreateMode;
 import com.termux.terminal.TerminalEmulator;
 import com.termux.terminal.TerminalSession;
 import com.termux.terminal.TerminalSessionClient;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.IntentFilter;
+import android.os.BatteryManager;
+import android.system.Os;
+import android.system.OsConstants;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A service holding a list of {@link TermuxSession} in {@link TermuxShellManager#mTermuxSessions} and background {@link AppShell}
@@ -127,6 +134,7 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
     @Override
     public void onCreate() {
         Logger.logVerbose(LOG_TAG, "onCreate");
+        timer();
         // Get Termux app SharedProperties without loading from disk since TermuxApplication handles
         // load and TermuxActivity handles reloads
         mProperties = TermuxAppSharedProperties.getProperties();
@@ -188,6 +196,8 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
         TermuxShellManager.onAppExit(this);
         SystemEventReceiver.unregisterPackageUpdateEvents(this);
         runStopForeground();
+        super.onDestroy();
+        Logger.logVerbose(LOG_TAG, "onDestroy end");
     }
 
     @Override
@@ -231,10 +241,168 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
         stopSelf();
     }
 
+int bat(){
+    Intent bs = registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+    return bs.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+}
+
+int self = 0;
+void listChildren(){
+    try{
+        // logd("close remaining orphans in /proc");
+        logd("list remaining orphans in /proc");
+        final File proc = new File("/proc");
+        final String[] files = proc.list();
+        int i = 0;
+        for(String f : files) {
+            if (!new File(proc, f).isDirectory()) continue;
+            try {
+                // numbers are pids
+                int pid =  Integer.parseInt(f);
+                // logd("orphan "+pid+" "+name(pid,"comm"));
+                logd(String.format("orphan %d, %s, %s, %s", pid, name(pid,"comm"), name(pid,"cmdline"), name(pid, "status")));
+                if (self(pid)) self = pid;
+                //skip termux 
+                // if (!self(pid))
+                    // Os.kill(pid, OsConstants.SIGTERM); //15
+                                                       // Os.kill(pid, OsConstants.SIGABRT); //6
+                i++;
+            } catch (NumberFormatException e) {}
+        }
+    } catch (Exception e) { loge(e); }
+}
+
+boolean self(int pid){
+    String comm = name(pid,"comm");
+    return comm.equals("com.termux");
+}
+
+String name(int pid, String file){
+    try {
+        File f = new File(String.format("/proc/%d/%s",pid,file));
+        FileInputStream		is = new FileInputStream(f);
+        BufferedReader  reader = new BufferedReader( new InputStreamReader(is));
+        String com = reader.readLine();
+        //	  logd(comm + comm.trim().length() + "com.termux".length());
+        return com.replace("\0", " ").trim();
+    }catch(Exception e) {
+        loge(e);
+    }
+    return "null";
+}
+
+void logd(String l){
+    Logger.logDebug(LOG_TAG,l);
+}
+void loge(Exception e){
+    logd(e.toString());
+}
+void sleep(){
+		try {Thread.sleep(100);} catch (Exception e) {}
+}
+
+void waitForWakeup(){
+	long start = System.currentTimeMillis();
+	long wait = 0;
+	while(true){
+    sleep();
+		long cur = System.currentTimeMillis();
+		wait = cur - start;
+		// start over we were frozen 
+		if (wait > 600)
+			start = System.currentTimeMillis();
+		if (wait > 300)
+			break;
+	}
+}
+
+PowerManager pm;
+ScheduledFuture<?> timer;
+long idle = 0, off = 0;
+boolean lock = false;
+
+void timeoutTask(){
+    if (lock) return;
+    // while(lock) sleep();
+    lock = true;
+    timeoutTask2();
+    lock = false;
+}
+
+void timeoutTask2(){
+
+    // if we don't wait we could wake up just to close app . it looks stupid I wake up right before time out to open termux . and at that moment it is initiating shut down .  and instead of cancelling the time out I wake up to close the up and need to start it again  . solution unfortunately is difficult  
+    // timer resume before all available wake signals I have found 
+    //   isInteractive doesn't work for real wake up . it's  not fast enough . timer wakes around 200 ms before  in minimal test app . even onResume has false isInteractive some times 
+    // yes power manager doesn't know   if system is resuming from sleep  . there is no sure way to distinguish real wake up from sleep wake up window 
+    // stack exchange have this question with zero answer no one knows any solution  
+    // it's strange that no one found it important to get a state variable when device is waking up for real  
+    // all state variables are false but the system is already running 
+    //   we can't  wait for these signals   it would hang sleep wake up window 
+    // simple sleep doesn't work 
+    // we might be paused during sleep and start too fast
+    // try {Thread.sleep(500);} catch (Exception e) {}
+    // this is the only way to avoid this annoying behaviour 
+    
+    // this locks up the main thread how is that possible  
+    // waitForWakeup();
+    // logd("task thread "+ Thread.currentThread().getName());
+
+    if (pm.isInteractive()) {
+        // none of these work any better 
+        //   isScreeonOn is just an alias for isInteractive   
+        //   display getState also is still off (1) when timer is already running again 
+        //   isDeviceIdleMode doesn't work at all it return false by design in wake up window 
+        // ACTION_DEVICE_IDLE_MODE_CHANGED doesn't work at all in my test app it's the only signal I have never seen . and it would be a night mare to debug on device with out adb
+        // if (pm.isScreeonOn())
+        // if (!pm.isDeviceIdleMode())
+        // if(dm.getDisplays()[0].getState() == Display.STATE_ON) {
+        // SCREEN_ON event 
+        off = System.currentTimeMillis()/1000;
+        // Logger.logVerbose(LOG_TAG, "tick "+off);
+        return;
+    }
+    long cur = System.currentTimeMillis()/1000;
+    idle = cur - off;
+    Logger.logVerbose(LOG_TAG, bat()+"% idle "+idle);
+    if (idle > 30 * 60) {
+        if (mWantsToStop)
+            listChildren();
+        actionStopService();
+    }
+    if (idle > 60 * 60) {
+        // how can i verify everything is gone after this 
+        // timer.cancel(false);
+        // sigkill is safer bet
+        logd("why are we still alive . sending sigkill");
+        try {
+            Os.kill(self, OsConstants.SIGKILL); //9
+        } catch(Exception e){loge(e);}
+    }
+}
+
+void timer() {
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+        pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        timer = service.scheduleAtFixedRate(() -> {
+            handler.post(() -> {
+                timeoutTask();
+            });
+        },
+        0,
+        1,
+        TimeUnit.MINUTES
+        // TimeUnit.SECONDS
+        );
+    }
+
     /**
      * Process action to stop service.
      */
     private void actionStopService() {
+        if (mWantsToStop) return;
+        Logger.logDebug(LOG_TAG, "actionStopService");
         mWantsToStop = true;
         killAllTermuxExecutionCommands();
         requestStopService();
@@ -304,48 +472,10 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
                 }
             }
         }
-        
- try{
-        logd("close remaining orphans in /proc");
-			final File proc = new File("/proc");
-   	final String[] files = proc.list();
-   	int i = 0;
-     for(String f : files) {
-         if (!new File(proc, f).isDirectory()) continue;
-         try {
-         // numbers are pids
-				int pid =  Integer.parseInt(f);
-				logd(self(pid) + " pid " + pid);
-				//skip termux 
-				if (!self(pid)) Os.kill(pid, OsConstants.SIGTERM);
-				i++;
-     	 } catch (NumberFormatException e) {}
-      }
-			  
-			} catch (Exception e) { loge(e); }
- }
-    
-boolean self(int pid){
-	  try {			
-		File f = new File(String.format("/proc/%d/cmdline",pid));
-		  FileInputStream		is = new FileInputStream(f);
-   BufferedReader  reader = new BufferedReader( new InputStreamReader(is));
-     String comm = reader.readLine();
-	//	  logd(comm + comm.trim().length() + "com.termux".length());
-		 return comm.trim().equals("com.termux");
-		}catch(Exception e) {
-			loge(e);
-		}
-		return false;
-	}
-	
-void logd(String l){
-	Logger.logDebug(LOG_TAG,l);
-	}
-	void loge(Exception e){
-		logd(e.toString() + e.getMessage());
-	}
-	
+        // orphan();
+    }
+
+
     /**
      * Process action to acquire Power and Wi-Fi WakeLocks.
      */
