@@ -58,6 +58,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 
 /**
@@ -127,6 +131,7 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
     @Override
     public void onCreate() {
         Logger.logVerbose(LOG_TAG, "onCreate");
+        timer();
         // Get Termux app SharedProperties without loading from disk since TermuxApplication handles
         // load and TermuxActivity handles reloads
         mProperties = TermuxAppSharedProperties.getProperties();
@@ -229,6 +234,30 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
         Logger.logDebug(LOG_TAG, "Requesting to stop service");
         runStopForeground();
         stopSelf();
+    }
+
+    long idle = 0, off = 0;
+    void timer() {
+        ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        ScheduledFuture<?> s = service.scheduleAtFixedRate(() -> {
+            handler.post(() -> {
+                if (pm.isInteractive())
+                    off = System.currentTimeMillis();
+                else
+                    Logger.logVerbose(LOG_TAG, "idle "+idle);
+                long cur = System.currentTimeMillis();
+                idle = cur - off;
+                if (idle > 5 * 60 * 1000)
+                    actionStopService();
+            });
+        },
+        0,
+        1,
+        // TimeUnit.MINUTES
+        TimeUnit.SECONDS
+        );
     }
 
     /**
