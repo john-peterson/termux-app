@@ -351,13 +351,13 @@ public final class TermuxConstants {
      * Termux app name
      */
     // Default: "Termux"
-    public static final String TERMUX_APP_NAME = "Termux";
+    public static final String TERMUX_APP_NAME = "Terminal";
 
     /**
      * Termux package name
      */
     // Default: "com.termux"
-    public static final String TERMUX_PACKAGE_NAME = "com.termux";
+    public static final String TERMUX_PACKAGE_NAME = "open.term";
 
     /**
      * Termux GitHub repo name

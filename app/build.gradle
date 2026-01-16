@@ -23,8 +23,9 @@ android {
     defaultConfig {
         minSdkVersion project.properties.minSdkVersion.toInteger()
         targetSdkVersion project.properties.targetSdkVersion.toInteger()
-        versionCode 1020 // Always keep the same versionCode as Termux Upstream to allow users to swap between termux installations.
-        versionName "0.119.0-b1+monet36"
+        versionCode 0 // Always keep the same versionCode as Termux Upstream to allow users to swap between termux installations.
+        versionName "0+open0"
+        applicationId "open.term"
 
         if (appVersionName) versionName = appVersionName
         validateVersionName(versionName)
@@ -32,8 +33,8 @@ android {
         buildConfigField "String", "TERMUX_PACKAGE_VARIANT", "\"" + project.ext.packageVariant + "\"" // Used by TermuxApplication class
 
         manifestPlaceholders = [
-            TERMUX_PACKAGE_NAME    : "com.termux",
-            TERMUX_APP_NAME        : "Termux:Monet",
+            TERMUX_PACKAGE_NAME    : "open.term",
+            TERMUX_APP_NAME        : "Terminal",
             TERMUX_API_APP_NAME    : "Termux:API",
             TERMUX_GUI_APP_NAME    : "Termux:GUI",
             TERMUX_BOOT_APP_NAME   : "Termux:Boot",
