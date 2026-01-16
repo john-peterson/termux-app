@@ -349,48 +349,60 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
                 }
             }
         }
-        
- try{
-        logd("close remaining orphans in /proc");
-			final File proc = new File("/proc");
-   	final String[] files = proc.list();
-   	int i = 0;
-     for(String f : files) {
-         if (!new File(proc, f).isDirectory()) continue;
-         try {
-         // numbers are pids
-				int pid =  Integer.parseInt(f);
-				logd(self(pid) + " pid " + pid);
-				//skip termux 
-				if (!self(pid)) Os.kill(pid, OsConstants.SIGTERM);
-				i++;
-     	 } catch (NumberFormatException e) {}
-      }
-			  
-			} catch (Exception e) { loge(e); }
- }
-    
+        orphan();
+    }
+
+    void orphan(){
+        try{
+            logd("close remaining orphans in /proc");
+            final File proc = new File("/proc");
+            final String[] files = proc.list();
+            int i = 0;
+            for(String f : files) {
+                if (!new File(proc, f).isDirectory()) continue;
+                try {
+                    // numbers are pids
+                    int pid =  Integer.parseInt(f);
+                    logd("orphan "+pid+" "+name(pid));
+                    //skip termux 
+                    if (!self(pid))
+                        Os.kill(pid, OsConstants.SIGTERM); //15
+                                                           // Os.kill(pid, OsConstants.SIGABRT); //6
+                    i++;
+                } catch (NumberFormatException e) {}
+            }
+        } catch (Exception e) { loge(e); }
+}
+
 boolean self(int pid){
-	  try {			
-		File f = new File(String.format("/proc/%d/cmdline",pid));
-		  FileInputStream		is = new FileInputStream(f);
-   BufferedReader  reader = new BufferedReader( new InputStreamReader(is));
-     String comm = reader.readLine();
-	//	  logd(comm + comm.trim().length() + "com.termux".length());
-		 return comm.trim().equals("com.termux");
-		}catch(Exception e) {
-			loge(e);
-		}
-		return false;
-	}
-	
+    String comm = name(pid);
+    return comm.equals("com.termux");
+}
+
+String name(int pid){
+    try {
+        File f = new File(String.format("/proc/%d/cmdline",pid));
+        FileInputStream		is = new FileInputStream(f);
+        BufferedReader  reader = new BufferedReader( new InputStreamReader(is));
+        String comm = reader.readLine();
+        //	  logd(comm + comm.trim().length() + "com.termux".length());
+        if (comm == null)
+            return "null";
+        else
+            return comm.trim();
+    }catch(Exception e) {
+        loge(e);
+    }
+    return "null";
+}
+
 void logd(String l){
-	Logger.logDebug(LOG_TAG,l);
-	}
-	void loge(Exception e){
-		logd(e.toString() + e.getMessage());
-	}
-	
+    Logger.logDebug(LOG_TAG,l);
+}
+void loge(Exception e){
+    logd(e.toString());
+}
+
     /**
      * Process action to acquire Power and Wi-Fi WakeLocks.
      */
