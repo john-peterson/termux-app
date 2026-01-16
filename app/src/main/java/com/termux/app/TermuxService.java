@@ -315,9 +315,11 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
          try {
          // numbers are pids
 				int pid =  Integer.parseInt(f);
-				logd(self(pid) + " pid " + pid);
+				logd("orphan "+pid+" "+name(pid));
 				//skip termux 
-				if (!self(pid)) Os.kill(pid, OsConstants.SIGTERM);
+				if (!self(pid))
+            Os.kill(pid, OsConstants.SIGTERM); //15
+            // Os.kill(pid, OsConstants.SIGABRT); //6
 				i++;
      	 } catch (NumberFormatException e) {}
       }
@@ -326,17 +328,25 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
  }
     
 boolean self(int pid){
+    String comm = name(pid);
+    return comm.equals("com.termux");
+}
+
+boolean name(int pid){
 	  try {			
 		File f = new File(String.format("/proc/%d/cmdline",pid));
 		  FileInputStream		is = new FileInputStream(f);
    BufferedReader  reader = new BufferedReader( new InputStreamReader(is));
      String comm = reader.readLine();
 	//	  logd(comm + comm.trim().length() + "com.termux".length());
-		 return comm.trim().equals("com.termux");
+     if (comm == null)
+         return "null";
+     else
+         return comm.trim();
 		}catch(Exception e) {
 			loge(e);
 		}
-		return false;
+		return "null";
 	}
 	
 void logd(String l){
