@@ -134,6 +134,7 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
         mShellManager = TermuxShellManager.getShellManager();
         runStartForeground();
         SystemEventReceiver.registerPackageUpdateEvents(this);
+        // SystemEventReceiver.setService(this);
     }
 
     @SuppressLint("Wakelock")
@@ -235,7 +236,7 @@ public final class TermuxService extends Service implements AppShell.AppShellCli
     /**
      * Process action to stop service.
      */
-    private void actionStopService() {
+    public void actionStopService() {
         mWantsToStop = true;
         killAllTermuxExecutionCommands();
         requestStopService();

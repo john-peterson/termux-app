@@ -64,6 +64,10 @@ public class TermuxAppSharedPreferences extends AppSharedPreferences {
             return new TermuxAppSharedPreferences(termuxPackageContext);
     }
 
+    public int idleTimeout() {
+        return SharedPreferenceUtils.getInt(mSharedPreferences, "idle_timeout" , 0);
+    }
+
     public boolean shouldShowTerminalToolbar() {
         return SharedPreferenceUtils.getBoolean(mSharedPreferences, TERMUX_APP.KEY_SHOW_TERMINAL_TOOLBAR, TERMUX_APP.DEFAULT_VALUE_SHOW_TERMINAL_TOOLBAR);
     }
